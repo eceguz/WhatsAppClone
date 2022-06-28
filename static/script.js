@@ -22,10 +22,10 @@ var color = color_arr[Math.floor(Math.random() * color_arr.length)];
 const users = [];
 document.getElementById("userName").innerHTML = username;
 
-function setActiveChat(ind){
+function setActiveChat(ind) {
   console.log(ind);
   groupId = ind;
-};
+}
 input.addEventListener("keypress", (e) => {
   socket.emit("chat message", {
     username: username,
@@ -50,7 +50,7 @@ form.addEventListener("submit", function (e) {
       message: input.value,
       color: color,
       typing: false,
-     // to: groupId
+      roomId: groupId
     });
     input.value = " ";
   }
@@ -66,30 +66,33 @@ socket.on("connect", () => {
 function addMessage(data) {
   var item = document.createElement("li");
   let date = new Date();
-  item.innerHTML =
-    "<div> " +
-    data.username +
-    ": " +
-    data.message +
-    "  " +
-    "<i> <small>  " +
-    date.getHours() +
-    ":" +
-    date.getMinutes() +
-    " <small/> <i/>" +
-    "<div/>";
-    if(data.roomId == groupId || (groupId == 0)){
-      console.log("data room id: " + data.roomId);
-      if (data.username == username) {
-        item.classList.add("self-message");
-        item.querySelector("div").style.backgroundColor = "#B7E5DD";
-      }else{
-        item.classList.add("others-message");
-        item.querySelector("div").style.backgroundColor = data.color;
-     }
+
+  if (
+    (data.roomId == username && groupId == data.username) 
+  ) {
+    item.innerHTML =
+      "<div> " +
+      data.username +
+      ": " +
+      data.message +
+      "  " +
+      "<i> <small>  " +
+      date.getHours() +
+      ":" +
+      date.getMinutes() +
+      " <small/> <i/>" +
+      "<div/>";
+    if (data.username == username) {
+      item.classList.add("self-message");
+      item.querySelector("div").style.backgroundColor = "#B7E5DD";
+    } else {
+      item.classList.add("others-message");
+      item.querySelector("div").style.backgroundColor = data.color;
     }
+  
   messages.appendChild(item);
   window.scrollTo(0, document.body.scrollHeight);
+}
 }
 
 socket.on("chat message", function (data) {
@@ -99,14 +102,15 @@ socket.on("chat message", function (data) {
       users.push(data.username);
 
       user.addEventListener("click", () => {
-        setActiveChat(data.username)
+        setActiveChat(data.username);
       });
 
       var userDiv = document.createElement("div");
       userDiv.className = "userImg";
 
       var icon = document.createElement("img");
-      icon.src = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT2e9F9dRnSZ0ebwoomAlHvmWVHBc6expV-XA&usqp=CAU";
+      icon.src =
+        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT2e9F9dRnSZ0ebwoomAlHvmWVHBc6expV-XA&usqp=CAU";
       icon.className = "cover";
 
       var nameDiv = document.createElement("div");
@@ -115,12 +119,11 @@ socket.on("chat message", function (data) {
       userDiv.appendChild(icon);
       user.appendChild(userDiv);
       user.appendChild(nameDiv);
-      
+
       nameDiv.innerHTML = data.username;
       user_list.appendChild(user);
       data.inList = true;
     }
-
   }
   if (data.typing == "stop") {
     document.getElementById("typing").innerHTML = " ";
