@@ -105,6 +105,11 @@ body {
     justify-content: space-between;
     align-items: center;
   }
+  .header_style{
+    display: flex;
+    position: absolute;
+    padding: 20px;
+  }
   #chatpanel_right_box {
     display: flex;
     position: absolute;

@@ -25,6 +25,11 @@ document.getElementById("userName").innerHTML = username;
 function setActiveChat(ind) {
   console.log(ind);
   groupId = ind;
+  var friendName = document.createElement("h4");
+  friendName.innerHTML=groupId;
+  friendName.classList.add("header_style");
+  chatpanel_right_header.appendChild(friendName);
+
 }
 input.addEventListener("keypress", (e) => {
   socket.emit("chat message", {
@@ -99,6 +104,7 @@ function addMessage(data) {
       "<div/>";
       item.classList.add("others-message");
       item.querySelector("div").style.backgroundColor = data.color;
+      
     }
   
   messages.appendChild(item);
