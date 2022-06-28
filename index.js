@@ -12,7 +12,6 @@ app.get('/', (req,res)=>{
 io.on('connection', (socket) => {
 
     socket.on('chat message',function(msg) {
-      //buraya to ekleyerek ve filter kullanarak private messaging yapacağız
       io.emit('chat message', msg);
     });
 
