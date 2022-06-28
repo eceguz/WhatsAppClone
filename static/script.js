@@ -67,36 +67,6 @@ function addMessage(data) {
   var item = document.createElement("li");
   let date = new Date();
 
-//   if (
-//     (data.roomId == username && groupId == data.username) 
-//   ) {
-//     item.innerHTML =
-//       "<div> " +
-//       data.username +
-//       ": " +
-//       data.message +
-//       "  " +
-//       "<i> <small>  " +
-//       date.getHours() +
-//       ":" +
-//       date.getMinutes() +
-//       " <small/> <i/>" +
-//       "<div/>";
-//     if (data.username == username) {
-//       item.classList.add("self-message");
-//       item.querySelector("div").style.backgroundColor = "#B7E5DD";
-//     } else {
-//       item.classList.add("others-message");
-//       item.querySelector("div").style.backgroundColor = data.color;
-//     }
-  
-//   messages.appendChild(item);
-//   window.scrollTo(0, document.body.scrollHeight);
-// }
-
-
-
-
     if (data.username == username) {
       item.innerHTML =
       "<div> " +
