@@ -3,7 +3,7 @@ body {
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    overflow:scroll;
+    overflow:auto;
     background: linear-gradient(
       #009688 0%,
       #009688 130px,
@@ -76,7 +76,7 @@ body {
   #user_list li:hover {
     background: #dadada;
   }
-  #user_list li:active , li:focus{
+  #user_list li:active {
     background: #dadad2;
   }
   #user_list li.active{
@@ -175,9 +175,6 @@ body {
     flex-grow: 1;
     border-radius: 2rem;
     margin: 0.25rem;
-  }
-  #input:focus {
-    outline: none;
   }
 
   #form > button {
