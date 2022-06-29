@@ -25,11 +25,29 @@ document.getElementById("userName").innerHTML = username;
 function setActiveChat(ind) {
   console.log(ind);
   groupId = ind;
-  var friendName = document.createElement("h4");
-  friendName.innerHTML=groupId;
-  friendName.classList.add("header_style");
-  chatpanel_right_header.appendChild(friendName);
 
+  // var userDiv = document.createElement("div");
+  // userDiv.className = "userImg";
+
+  // var icon = document.createElement("img");
+  // icon.src =
+  //   "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT2e9F9dRnSZ0ebwoomAlHvmWVHBc6expV-XA&usqp=CAU";
+  // icon.className = "cover";
+
+  // var nameDiv = document.createElement("div");
+  // nameDiv.className = "groupName";
+
+  // userDiv.appendChild(icon);
+  // user.appendChild(userDiv);
+  // user.appendChild(nameDiv);
+
+  // nameDiv.innerHTML = data.username;
+  // user_list.appendChild(user);
+  var friendName = document.createElement("h4");
+  friendName.innerHTML = groupId;
+  friendName.classList.add("header_style");
+
+  chatpanel_right_header.appendChild(friendName);
 }
 input.addEventListener("keypress", (e) => {
   socket.emit("chat message", {
@@ -55,7 +73,7 @@ form.addEventListener("submit", function (e) {
       message: input.value,
       color: color,
       typing: false,
-      roomId: groupId
+      roomId: groupId,
     });
     input.value = " ";
   }
@@ -64,7 +82,6 @@ form.addEventListener("submit", function (e) {
 socket.on("connect", () => {
   socket.emit("register username", {
     username: username,
-    inList: false,
   });
 });
 
@@ -72,8 +89,8 @@ function addMessage(data) {
   var item = document.createElement("li");
   let date = new Date();
 
-    if (data.username == username) {
-      item.innerHTML =
+  if (data.username == username) {
+    item.innerHTML =
       "<div> " +
       data.username +
       ": " +
@@ -85,12 +102,10 @@ function addMessage(data) {
       date.getMinutes() +
       " <small/> <i/>" +
       "<div/>";
-      item.classList.add("self-message");
-      item.querySelector("div").style.backgroundColor = "#B7E5DD";
-    } else  if (
-      (data.roomId == username && groupId == data.username) 
-    ) {
-      item.innerHTML =
+    item.classList.add("self-message");
+    item.querySelector("div").style.backgroundColor = "#B7E5DD";
+  } else if (data.roomId == username && groupId == data.username) {
+    item.innerHTML =
       "<div> " +
       data.username +
       ": " +
@@ -102,18 +117,16 @@ function addMessage(data) {
       date.getMinutes() +
       " <small/> <i/>" +
       "<div/>";
-      item.classList.add("others-message");
-      item.querySelector("div").style.backgroundColor = data.color;
-      
-    }
-  
+    item.classList.add("others-message");
+    item.querySelector("div").style.backgroundColor = data.color;
+  }
+
   messages.appendChild(item);
   window.scrollTo(0, document.body.scrollHeight);
-
 }
 
 socket.on("chat message", function (data) {
-  if (data.username !== username) {
+  if (data.username != username) {
     if (users.includes(data.username) == false) {
       var user = document.createElement("li");
       users.push(data.username);
@@ -142,12 +155,20 @@ socket.on("chat message", function (data) {
       data.inList = true;
     }
   }
+  
   if (data.typing == "stop") {
     document.getElementById("typing").innerHTML = " ";
-  } else if (data.typing) {
-    document.getElementById("typing").innerHTML =
+  } else if ( data.typing ) {
+    if(data.username != username && groupId==data.username ){
+      document.getElementById("typing").innerHTML =
       "      " + data.username + " is typing...";
-  } else {
+    }else{
+      document.getElementById("typing").innerHTML = " ";
+
+    }
+
+  }  
+  else {
     document.getElementById("typing").innerHTML = " ";
 
     addMessage(data);
