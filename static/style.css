@@ -9,7 +9,6 @@ body {
       #009688 130px,
       #f1f3ee 130px,
       #f1f3ee 100%
-    
     );
     
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
@@ -73,11 +72,15 @@ body {
     justify-content: revert;
     align-items: center;
   }
-  #user_list i:hover {
+
+  #user_list li:hover {
     background: #dadada;
   }
-  #user_list li:active {
+  #user_list li:active , li:focus{
     background: #dadad2;
+  }
+  #user_list li.active{
+    background: #dadada;
   }
 
   .groupName {

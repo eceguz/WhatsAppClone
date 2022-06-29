@@ -21,29 +21,12 @@ var groupId = 0;
 var color = color_arr[Math.floor(Math.random() * color_arr.length)];
 const users = [];
 document.getElementById("userName").innerHTML = username;
+var friendName = document.createElement("h4");
 
 function setActiveChat(ind) {
   console.log(ind);
   groupId = ind;
-
-  // var userDiv = document.createElement("div");
-  // userDiv.className = "userImg";
-
-  // var icon = document.createElement("img");
-  // icon.src =
-  //   "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT2e9F9dRnSZ0ebwoomAlHvmWVHBc6expV-XA&usqp=CAU";
-  // icon.className = "cover";
-
-  // var nameDiv = document.createElement("div");
-  // nameDiv.className = "groupName";
-
-  // userDiv.appendChild(icon);
-  // user.appendChild(userDiv);
-  // user.appendChild(nameDiv);
-
-  // nameDiv.innerHTML = data.username;
-  // user_list.appendChild(user);
-  var friendName = document.createElement("h4");
+  
   friendName.innerHTML = groupId;
   friendName.classList.add("header_style");
 
@@ -122,7 +105,7 @@ function addMessage(data) {
   }
 
   messages.appendChild(item);
-  window.scrollTo(0, document.body.scrollHeight);
+  //window.scrollTo(0, document.body.scrollHeight);
 }
 
 socket.on("chat message", function (data) {
@@ -132,7 +115,12 @@ socket.on("chat message", function (data) {
       users.push(data.username);
 
       user.addEventListener("click", () => {
+        let activeEl = document.querySelector("li.active");
+        if(activeEl) activeEl.classList.remove("active");
+        
         setActiveChat(data.username);
+
+        user.classList.add("active");
       });
 
       var userDiv = document.createElement("div");
@@ -161,16 +149,14 @@ socket.on("chat message", function (data) {
   } else if ( data.typing ) {
     if(data.username != username && groupId==data.username ){
       document.getElementById("typing").innerHTML =
-      "      " + data.username + " is typing...";
+      data.username + " is typing...";
     }else{
       document.getElementById("typing").innerHTML = " ";
-
     }
 
   }  
   else {
     document.getElementById("typing").innerHTML = " ";
-
     addMessage(data);
   }
 });
