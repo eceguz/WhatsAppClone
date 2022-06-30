@@ -2,35 +2,35 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 100vh;
-    overflow:auto;
+    height: 100vh;
+    overflow: hidden;
+    min-height: 90vh;
     background: linear-gradient(
       #009688 0%,
       #009688 130px,
       #f1f3ee 130px,
       #f1f3ee 100%
     );
-    
+    overflow:hidden;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
       Helvetica, Arial, sans-serif;
   }
   #chatpanel {
     position: relative;
-    width: 1396px;
+    width: 100%;
     justify-content: center;
-    align-items: center;
+    align-items: stretch;
     max-width: 100%;
-    margin-top: 40px;
+    margin:30px;
     background: #fff;
-    height: calc(100%-100px);
+    height: calc(100vh - 20px);
     display: flex;
-  
+    overflow: hidden;
   }
   #chatpanel #chatpanel_left {
     position: relative;
     display: block;
     flex: 30%;
-    min-height: 100vh;
     background: #f7e2d6;
     border-right: 1px solid black;
   }
@@ -49,7 +49,7 @@ body {
     display: flex;
     position: absolute;
     width: 100%;
-    height: 100%;
+    height: calc(100vh - 10px);
     flex-direction: column;
   }
   #user_list {
@@ -76,9 +76,6 @@ body {
   #user_list li:hover {
     background: #dadada;
   }
-  #user_list li:active {
-    background: #dadad2;
-  }
   #user_list li.active{
     background: #dadada;
   }
@@ -94,13 +91,14 @@ body {
     position: relative;
     display: flex;
     flex: 70%;
-    min-height: 100vh;
     background: #ffd9c0;
     border-right: 1px solid black;
+    height: 100%;
+    flex-direction: column;
   
   }
   #chatpanel_right_header {
-    position: relative;
+    position: absolute;
     width: 100%;
     height: 60px;
     background: #ededed;
@@ -115,24 +113,34 @@ body {
   }
   #chatpanel_right_box {
     display: flex;
-    position: absolute;
     width: 100%;
-    height: calc(100%-100px);
-    margin-top: 60px;
-    min-height: 100vh;
+    height: calc(100vh - 60px);
     background-image: url("https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png");
     background-repeat: repeat-y;
     background-repeat: repeat-x;
-    
+    align-items: stretch;
+    padding-top: 60px;
+    max-height: calc(100vh - 60px);
+    overflow: hidden;
+    flex-direction: column;
+  
   }
   .comments {
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    margin: 10px 0px;
+    gap: 15px;
+    margin: 10px 10px;
     list-style-type: none;
     padding: 10px;
     width: 100%;
+
+    
+  }
+  .comments_wrapper{
+    flex-grow:1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 40px;
   }
   .comments li > div {
     display: inline-flex;
@@ -142,6 +150,7 @@ body {
     flex-grow: 0;
     flex-shrink: 0;
   }
+
   .comments li.self-message {
     text-align: right;
   }
@@ -160,7 +169,7 @@ body {
   #form {
     background: rgba(0, 0, 0, 0.15);
     padding: 0.25rem;
-    position: absolute;
+    position: relative;
     bottom: 0;
     width: 100%;
     display: flex;
@@ -175,6 +184,7 @@ body {
     flex-grow: 1;
     border-radius: 2rem;
     margin: 0.25rem;
+    height: 30px;
   }
 
   #form > button {
@@ -218,4 +228,29 @@ body {
     font-size: 18px;
     padding: 10px;
     border: 1px solid #ddd;
+  }
+
+  .comments_wrapper::-webkit-scrollbar-track
+  {
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.1);
+    background-color: #F5F5F5;
+    border-radius: 10px;
+  }
+  
+  .comments_wrapper::-webkit-scrollbar
+  {
+    width: 10px;
+    background-color: #F5F5F5;
+  }
+  
+  .comments_wrapper::-webkit-scrollbar-thumb
+  {
+    border-radius: 10px;
+    background-color: #FFF;
+    background-image: -webkit-linear-gradient(top,
+                          #d8fff9 0%,
+                          #c4f5ef 50%,
+                          #a4dfd6 51%,
+                          #8ed3c9 100%);
+
   }

@@ -67,7 +67,9 @@ socket.on("connect", () => {
     username: username,
   });
 });
-
+let getUserMessages = (id) => {
+  return data.filter(data => data.to == id)
+}
 function addMessage(data) {
   var item = document.createElement("li");
   let date = new Date();
@@ -105,7 +107,8 @@ function addMessage(data) {
   }
 
   messages.appendChild(item);
-  //window.scrollTo(0, document.body.scrollHeight);
+  let panel = document.querySelector(".comments_wrapper");
+  panel.scrollTop = panel.scrollHeight;
 }
 
 socket.on("chat message", function (data) {
@@ -140,14 +143,13 @@ socket.on("chat message", function (data) {
 
       nameDiv.innerHTML = data.username;
       user_list.appendChild(user);
-      data.inList = true;
     }
   }
   
   if (data.typing == "stop") {
     document.getElementById("typing").innerHTML = " ";
   } else if ( data.typing ) {
-    if(data.username != username && groupId==data.username ){
+    if(data.username != username && groupId == data.username ){
       document.getElementById("typing").innerHTML =
       data.username + " is typing...";
     }else{
