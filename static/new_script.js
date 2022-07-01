@@ -141,7 +141,7 @@ let app = {
       return (message.username == messageFrom && message.to == messageTo) || (message.username == messageTo && message.to == messageFrom);
     })
   
-   console.log(messageList);
+    console.log(messageList);
   }
 };
 document.onload = app._init();

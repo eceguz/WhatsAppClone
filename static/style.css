@@ -80,6 +80,10 @@ body {
     background: #dadada;
   }
 
+  #user_list li.not_active{
+    background: #ededed;
+  }
+
   .groupName {
     position: relative;
     display: flex;
@@ -253,4 +257,8 @@ body {
                           #a4dfd6 51%,
                           #8ed3c9 100%);
 
+  }
+  #logOutIcon {
+    padding-right: 15px;
+    cursor: pointer;
   }

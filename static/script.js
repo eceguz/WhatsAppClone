@@ -1,3 +1,4 @@
+
 var socket = io();
 
 var messages = document.getElementById("messages");
@@ -6,6 +7,8 @@ var form = document.getElementById("form");
 var input = document.getElementById("input");
 var username = prompt("Enter your username");
 let messageList = [];
+let users = [];
+let loggedUsers = [];
 
 const color_arr = [
   "#FFE6E6",
@@ -19,9 +22,10 @@ const color_arr = [
   "#FFDCAE",
   "#E6BA95",
 ];
+
 var groupId = 0;
 var color = color_arr[Math.floor(Math.random() * color_arr.length)];
-const users = [];
+
 document.getElementById("userName").innerHTML = username;
 var friendName = document.createElement("h4");
 
@@ -57,7 +61,7 @@ function addUser(data) {
     if (users.includes(data.username) == false) {
       let user = document.createElement("li");
       user.classList.add("active");
-
+      user.setAttribute("userName", data.username);
       user.addEventListener("click", () => {
         let activeEl = document.querySelector("li.active");
         if (activeEl) activeEl.classList.remove("active");
@@ -86,16 +90,48 @@ function addUser(data) {
     }
   }
 }
+function filterLoggedOutUsers(loggedUsers) {
+  let loggedOutUsers = [];
+  for(let i = 0; i < users.length; i++){
+    if(!loggedUsers.includes(users[i])){
+      loggedOutUsers.push(users[i]);
+    }
+  }
+  return loggedOutUsers;
+}
 
-socket.on("connect", () => {
+function logOut(){
+  console.log("does this work");
+  socket.emit('log out', {username: username});
+  
+}
+
+setInterval(() => {
   socket.emit("register username", {
     username: username,
   });
+  // socket.emit('disconnect', {
+  //   username: username
+  // });
+}, 2000);
+
+socket.on('log out', (data) => {
+  console.log("user: " + data.username + " is logged out");
+  socket.on('disconnect');
 });
 
 socket.on("register username", (data) => {
-  addUser({ username: data.username });
+
+    addUser({ username: data.username });
+ 
 });
+
+// socket.on('disconnect', () => {
+//   socket.emit(console.log('you have been disconnected'));
+// });
+// socket.on('user left', (data) => {
+//   console.log(data.username + " is left");
+// });
 
 input.addEventListener("keypress", (e) => {
   socket.emit("chat message", {
@@ -128,10 +164,15 @@ form.addEventListener("submit", function (e) {
   }
 });
 
+// window.addEventListener('beforeunload', function (e) {
+//   e.preventDefault();
+//   alert("hıuh");
+// });
+
 function addMessage(data) {
   var item = document.createElement("li");
   let date = new Date();
-  var aMessage;
+  
   if (data.username == username) {
     item.innerHTML =
       "<div> " +
@@ -147,7 +188,7 @@ function addMessage(data) {
       "<div/>";
     item.classList.add("self-message");
     item.querySelector("div").style.backgroundColor = "#B7E5DD";
-    aMessage = { msgInput: item, from: username, to: groupId };
+  
   } else if (data.roomId == username && groupId == data.username) {
     item.innerHTML =
       "<div> " +
@@ -163,7 +204,7 @@ function addMessage(data) {
       "<div/>";
     item.classList.add("others-message");
     item.querySelector("div").style.backgroundColor = data.color;
-    aMessage = { msgInput: item, from: username, to: groupId };
+
   }
 
   messages.appendChild(item);
@@ -190,3 +231,6 @@ socket.on("chat message", function (data) {
     addMessage(data);
   }
 });
+
+
+
