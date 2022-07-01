@@ -7,9 +7,7 @@ var form = document.getElementById("form");
 var input = document.getElementById("input");
 var username = prompt("Enter your username");
 let messageList = [];
-let getUserMessages = (un) => {
-  return messageList.filter(aMessage => aMessage.roomId == un)
-}
+
 const color_arr = [
   "#FFE6E6",
   "#F2D1D1",
@@ -49,7 +47,8 @@ function setActiveChat(selectedUser) {
   console.log(messageList, groupId);
 
   if (selectedUser) {
-    console.log(filterMessages(selectedUser, username));
+    filterMessages(selectedUser, username);
+    filterMessages(username, selectedUser);
   }
   
 }
@@ -82,12 +81,7 @@ form.addEventListener("submit", function (e) {
       roomId: groupId,
     
     });
-    // messageList.push({
-    //   username: username,
-    //   message: input.value,
-    //   color: color,
-    //   roomId: groupId,
-    // })
+
     input.value = " ";
   }
 });
@@ -101,7 +95,7 @@ socket.on("connect", () => {
 function addMessage(data) {
   var item = document.createElement("li");
   let date = new Date();
-  // let aMessage = {msg: item, to:groupId};
+  var aMessage;
   if (data.username == username) {
     item.innerHTML =
       "<div> " +
@@ -117,7 +111,7 @@ function addMessage(data) {
       "<div/>";
     item.classList.add("self-message");
     item.querySelector("div").style.backgroundColor = "#B7E5DD";
-    var aMessage = {msgInput: item, from: username, to: groupId};
+    aMessage = {msgInput: item, from: username, to: groupId};
   } else if (data.roomId == username && groupId == data.username) {
     item.innerHTML =
       "<div> " +
@@ -133,7 +127,7 @@ function addMessage(data) {
       "<div/>";
     item.classList.add("others-message");
     item.querySelector("div").style.backgroundColor = data.color;
-    var aMessage = {msgInput: item, from: username, to: groupId};
+    aMessage = {msgInput: item, from: username, to: groupId};
   }
 
   messages.appendChild(item);
