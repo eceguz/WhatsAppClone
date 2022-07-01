@@ -141,8 +141,6 @@ let app = {
       return (message.username == messageFrom && message.to == messageTo) || (message.username == messageTo && message.to == messageFrom);
     })
   
-   //messages.innerHTML = "";
-   //messageList.forEach(item => addMessage(item))
    console.log(messageList);
   }
 };

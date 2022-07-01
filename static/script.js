@@ -1,4 +1,3 @@
-
 var socket = io();
 
 var messages = document.getElementById("messages");
@@ -26,20 +25,22 @@ const users = [];
 document.getElementById("userName").innerHTML = username;
 var friendName = document.createElement("h4");
 
-function filterMessages(messageFrom, messageTo){
-  let messagesList = messageList.filter(message => {
-    return  (message.username == messageTo && message.roomId == messageFrom) || (message.username == messageFrom && message.roomId == messageTo);
-  })
+function filterMessages(messageFrom, messageTo) {
+  let messagesList = messageList.filter((message) => {
+    return (
+      (message.username == messageTo && message.roomId == messageFrom) ||
+      (message.username == messageFrom && message.roomId == messageTo)
+    );
+  });
 
- messages.innerHTML = "";
- messagesList.forEach(item => addMessage(item))
- 
-};
+  messages.innerHTML = "";
+  messagesList.forEach((item) => addMessage(item));
+}
 
 function setActiveChat(selectedUser) {
   console.log(selectedUser);
   groupId = selectedUser;
-  
+
   friendName.innerHTML = groupId;
   friendName.classList.add("header_style");
 
@@ -49,9 +50,52 @@ function setActiveChat(selectedUser) {
   if (selectedUser) {
     filterMessages(selectedUser, username);
   }
-  
 }
 
+function addUser(data) {
+  if (data.username != username) {
+    if (users.includes(data.username) == false) {
+      let user = document.createElement("li");
+      user.classList.add("active");
+
+      user.addEventListener("click", () => {
+        let activeEl = document.querySelector("li.active");
+        if (activeEl) activeEl.classList.remove("active");
+
+        setActiveChat(data.username);
+      });
+      users.push(data.username);
+
+      let userDiv = document.createElement("div");
+      userDiv.className = "userImg";
+
+      var icon = document.createElement("img");
+      icon.src =
+        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT2e9F9dRnSZ0ebwoomAlHvmWVHBc6expV-XA&usqp=CAU";
+      icon.className = "cover";
+
+      var nameDiv = document.createElement("div");
+      nameDiv.className = "groupName";
+
+      userDiv.appendChild(icon);
+      user.appendChild(userDiv);
+      user.appendChild(nameDiv);
+
+      nameDiv.innerHTML = data.username;
+      user_list.appendChild(user);
+    }
+  }
+}
+
+socket.on("connect", () => {
+  socket.emit("register username", {
+    username: username,
+  });
+});
+
+socket.on("register username", (data) => {
+  addUser({ username: data.username });
+});
 
 input.addEventListener("keypress", (e) => {
   socket.emit("chat message", {
@@ -78,17 +122,10 @@ form.addEventListener("submit", function (e) {
       color: color,
       typing: false,
       roomId: groupId,
-    
     });
 
     input.value = " ";
   }
-});
-
-socket.on("connect", () => {
-  socket.emit("register username", {
-    username: username,
-  });
 });
 
 function addMessage(data) {
@@ -110,7 +147,7 @@ function addMessage(data) {
       "<div/>";
     item.classList.add("self-message");
     item.querySelector("div").style.backgroundColor = "#B7E5DD";
-    aMessage = {msgInput: item, from: username, to: groupId};
+    aMessage = { msgInput: item, from: username, to: groupId };
   } else if (data.roomId == username && groupId == data.username) {
     item.innerHTML =
       "<div> " +
@@ -126,7 +163,7 @@ function addMessage(data) {
       "<div/>";
     item.classList.add("others-message");
     item.querySelector("div").style.backgroundColor = data.color;
-    aMessage = {msgInput: item, from: username, to: groupId};
+    aMessage = { msgInput: item, from: username, to: groupId };
   }
 
   messages.appendChild(item);
@@ -137,52 +174,18 @@ function addMessage(data) {
 }
 
 socket.on("chat message", function (data) {
-  if (data.username != username) {
-    if (users.includes(data.username) == false) {
-      var user = document.createElement("li");
-      users.push(data.username);
-
-      user.addEventListener("click", () => {
-        let activeEl = document.querySelector("li.active");
-        if(activeEl) activeEl.classList.remove("active");
-        
-        setActiveChat(data.username);
-
-        user.classList.add("active");
-      });
-
-      var userDiv = document.createElement("div");
-      userDiv.className = "userImg";
-
-      var icon = document.createElement("img");
-      icon.src =
-        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT2e9F9dRnSZ0ebwoomAlHvmWVHBc6expV-XA&usqp=CAU";
-      icon.className = "cover";
-
-      var nameDiv = document.createElement("div");
-      nameDiv.className = "groupName";
-
-      userDiv.appendChild(icon);
-      user.appendChild(userDiv);
-      user.appendChild(nameDiv);
-
-      nameDiv.innerHTML = data.username;
-      user_list.appendChild(user);
-    }
-  }
-  
+  messageList.push(data);
+  addUser(data);
   if (data.typing == "stop") {
     document.getElementById("typing").innerHTML = " ";
-  } else if ( data.typing ) {
-    if(data.username != username && groupId == data.username ){
+  } else if (data.typing) {
+    if (data.username != username && groupId == data.username) {
       document.getElementById("typing").innerHTML =
-      data.username + " is typing...";
-    }else{
+        data.username + " is typing...";
+    } else {
       document.getElementById("typing").innerHTML = " ";
     }
-
-  }  
-  else {
+  } else {
     document.getElementById("typing").innerHTML = " ";
     addMessage(data);
   }
