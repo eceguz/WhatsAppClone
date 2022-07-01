@@ -1,149 +1,189 @@
-let app = {
-  _init: () => {
-    console.log(app.options);
-    let socket = io();
-    app.username = prompt("Enter your username");
 
-    socket.on("connect", () => {
-      socket.emit("register username", {
-        username: app.username,
-      });
-    });
+var socket = io();
 
-    socket.on("register username", (data) => {
-      console.log("ejerf");
-      app.addUser({username:data.username});
-    });
+var messages = document.getElementById("messages");
+var form = document.getElementById("form");
 
-    app.options.input.addEventListener("keypress", (e) => {
-      socket.emit("chat message", {
-        username: app.username,
-        typing: true,
-      });
-    });
+var input = document.getElementById("input");
+var username = prompt("Enter your username");
+let messageList = [];
 
-    app.options.input.addEventListener("keyup", (e) => {
-      setTimeout(() => {
-        socket.emit("chat message", {
-          username: app.username,
-          typing: "stop",
-        });
-      }, 3000);
-    });
+const color_arr = [
+  "#FFE6E6",
+  "#F2D1D1",
+  "#DAEAF1",
+  "#C6DCE4",
+  "#9A86A4",
+  "#F1F0C0",
+  "#F4BFBF",
+  "#F55353",
+  "#FFDCAE",
+  "#E6BA95",
+];
+var groupId = 0;
+var color = color_arr[Math.floor(Math.random() * color_arr.length)];
+const users = [];
+document.getElementById("userName").innerHTML = username;
+var friendName = document.createElement("h4");
 
-    app.options.form.addEventListener("submit", function (e) {
-      e.preventDefault();
-      let currentColor =
-        app.options.colorList[
-          Math.floor(Math.random() * app.options.colorList.length)
-        ];
-      if (app.options.input.value) {
-        socket.emit("chat message", {
-          username: app.username,
-          message: app.options.input.value,
-          color: currentColor,
-          typing: false,
-          to: app.selectedChat,
-        });
+function filterMessages(messageFrom, messageTo){
+  let messagesList = messageList.filter(message => {
+    return  (message.username == messageTo && message.roomId == messageFrom) || (message.username == messageFrom && message.roomId == messageTo);
+  })
 
-        app.options.input.value = " ";
-      }
-    });
-
-    socket.on("chat message", function (data) {
-      if(data.typing == false){
-        app.messageList.push(data);
-        app.addUser(data);
-      }
-    });
-  },
-  options: {
-    messagesContainer: document.getElementById("messages"),
-    form: document.getElementById("form"),
-    input: document.getElementById("input"),
-    username: document.getElementById("userName"),
-    colorList: [
-      "#FFE6E6",
-      "#F2D1D1",
-      "#DAEAF1",
-      "#C6DCE4",
-      "#9A86A4",
-      "#F1F0C0",
-      "#F4BFBF",
-      "#F55353",
-      "#FFDCAE",
-      "#E6BA95",
-    ],
-  },
-  username: null,
-  messageList: [],
-  selectedChat: null,
-  users: [],
-  activeChatTitle : document.querySelector("#chatpanel_right_header h4"),
-  setActiveChatTitle() {
-    app.options.username.innerHTML = app.username;
-  },
-  addUser(data){
-    console.log(data.username , app.username);
-    if (data.username != app.username) {
-      console.log("bi şey");
-      if (app.users.includes(data.username) == false) {
-        let user = document.createElement("li");
-        user.classList.add("active");
-
-        user.addEventListener("click", () => {
-          let activeEl = document.querySelector("li.active");
-          if(activeEl) activeEl.classList.remove("active");
-          
-          app.setActiveChat(data.username);
-        });
-        app.users.push(data.username);
-
-        let userDiv = document.createElement("div");
-        userDiv.className = "userImg";
-  
-        var icon = document.createElement("img");
-        icon.src =
-          "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT2e9F9dRnSZ0ebwoomAlHvmWVHBc6expV-XA&usqp=CAU";
-        icon.className = "cover";
-  
-        var nameDiv = document.createElement("div");
-        nameDiv.className = "groupName";
-  
-        userDiv.appendChild(icon);
-        user.appendChild(userDiv);
-        user.appendChild(nameDiv);
-  
-        nameDiv.innerHTML = data.username;
-        user_list.appendChild(user);
-      
-      }
-    }
-    
-  },
-  setActiveChat(selectedUser){
-    console.log(selectedUser);
-    to = selectedUser;
-    
-    app.activeChatTitle.innerHTML = to;
-    app.activeChatTitle.classList.add("header_style");
-
-    document.getElementById("chatpanel_right_header").appendChild(app.activeChatTitle);
-
-    console.log(messageList, to);
-
-    if (selectedUser) {
-      filterMessages(selectedUser, username);
-    }
-  },
-  filterMessages(messageFrom, messageTo){
-    let messagesList = app.messageList.filter(message => {
-      return (message.username == messageFrom && message.to == messageTo) || (message.username == messageTo && message.to == messageFrom);
-    })
-  
-   //messages.innerHTML = "";
-   //messageList.forEach(item => addMessage(item))
-   console.log(messageList);
-  }
+ messages.innerHTML = "";
+ messagesList.forEach(item => addMessage(item))
+ 
 };
-document.onload = app._init();
+
+function setActiveChat(selectedUser) {
+  console.log(selectedUser);
+  groupId = selectedUser;
+  
+  friendName.innerHTML = groupId;
+  friendName.classList.add("header_style");
+
+  chatpanel_right_header.appendChild(friendName);
+  console.log(messageList, groupId);
+
+  if (selectedUser) {
+    filterMessages(selectedUser, username);
+  }
+  
+}
+
+
+input.addEventListener("keypress", (e) => {
+  socket.emit("chat message", {
+    username: username,
+    typing: true,
+  });
+});
+
+input.addEventListener("keyup", (e) => {
+  setTimeout(() => {
+    socket.emit("chat message", {
+      username: username,
+      typing: "stop",
+    });
+  }, 3000);
+});
+
+form.addEventListener("submit", function (e) {
+  e.preventDefault();
+  if (input.value) {
+    socket.emit("chat message", {
+      username: username,
+      message: input.value,
+      color: color,
+      typing: false,
+      roomId: groupId,
+    
+    });
+
+    input.value = " ";
+  }
+});
+
+socket.on("connect", () => {
+  socket.emit("register username", {
+    username: username,
+  });
+});
+
+function addMessage(data) {
+  var item = document.createElement("li");
+  let date = new Date();
+  var aMessage;
+  if (data.username == username) {
+    item.innerHTML =
+      "<div> " +
+      data.username +
+      ": " +
+      data.message +
+      "  " +
+      "<i> <small>  " +
+      date.getHours() +
+      ":" +
+      date.getMinutes() +
+      " <small/> <i/>" +
+      "<div/>";
+    item.classList.add("self-message");
+    item.querySelector("div").style.backgroundColor = "#B7E5DD";
+    aMessage = {msgInput: item, from: username, to: groupId};
+  } else if (data.roomId == username && groupId == data.username) {
+    item.innerHTML =
+      "<div> " +
+      data.username +
+      ": " +
+      data.message +
+      "  " +
+      "<i> <small>  " +
+      date.getHours() +
+      ":" +
+      date.getMinutes() +
+      " <small/> <i/>" +
+      "<div/>";
+    item.classList.add("others-message");
+    item.querySelector("div").style.backgroundColor = data.color;
+    aMessage = {msgInput: item, from: username, to: groupId};
+  }
+
+  messages.appendChild(item);
+  messageList.push(data);
+  console.log(messageList);
+  let panel = document.querySelector(".comments_wrapper");
+  panel.scrollTop = panel.scrollHeight;
+}
+
+socket.on("chat message", function (data) {
+  if (data.username != username) {
+    if (users.includes(data.username) == false) {
+      var user = document.createElement("li");
+      users.push(data.username);
+
+      user.addEventListener("click", () => {
+        let activeEl = document.querySelector("li.active");
+        if(activeEl) activeEl.classList.remove("active");
+        
+        setActiveChat(data.username);
+
+        user.classList.add("active");
+      });
+
+      var userDiv = document.createElement("div");
+      userDiv.className = "userImg";
+
+      var icon = document.createElement("img");
+      icon.src =
+        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT2e9F9dRnSZ0ebwoomAlHvmWVHBc6expV-XA&usqp=CAU";
+      icon.className = "cover";
+
+      var nameDiv = document.createElement("div");
+      nameDiv.className = "groupName";
+
+      userDiv.appendChild(icon);
+      user.appendChild(userDiv);
+      user.appendChild(nameDiv);
+
+      nameDiv.innerHTML = data.username;
+      user_list.appendChild(user);
+    }
+  }
+  
+  if (data.typing == "stop") {
+    document.getElementById("typing").innerHTML = " ";
+  } else if ( data.typing ) {
+    if(data.username != username && groupId == data.username ){
+      document.getElementById("typing").innerHTML =
+      data.username + " is typing...";
+    }else{
+      document.getElementById("typing").innerHTML = " ";
+    }
+
+  }  
+  else {
+    document.getElementById("typing").innerHTML = " ";
+    addMessage(data);
+  }
+});
