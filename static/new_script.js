@@ -11,7 +11,7 @@ let app = {
     });
 
     socket.on("register username", (data) => {
-      console.log("ejerf");
+      
       app.addUser({username:data.username});
     });
 

@@ -1,4 +1,3 @@
-
 var socket = io();
 
 var messages = document.getElementById("messages");
@@ -62,13 +61,13 @@ function addUser(data) {
       let user = document.createElement("li");
       user.classList.add("active");
       user.setAttribute("userName", data.username);
+
       user.addEventListener("click", () => {
         let activeEl = document.querySelectorAll("li.active");
-        activeEl.forEach(element => {
-          if(element) element.classList.remove("active");
+        activeEl.forEach((element) => {
+          if (element) element.classList.remove("active");
           user.classList.add("active");
-        })
-       // if (activeEl) activeEl.classList.remove("active");
+        });
 
         setActiveChat(data.username);
       });
@@ -94,19 +93,25 @@ function addUser(data) {
     }
   }
 }
-function filterLoggedOutUsers(loggedUsers) {
-  let loggedOutUsers = [];
-  for(let i = 0; i < users.length; i++){
-    if(!loggedUsers.includes(users[i])){
-      loggedOutUsers.push(users[i]);
-    }
+
+function deleteUser(data) {
+  if (data.username != username) {
+    let loggedOutUser = document.querySelector(
+      "[userName=" + data.username + "]"
+    );
+    loggedOutUser.style.display = "none";
   }
-  return loggedOutUsers;
+
+  console.log(data.username + " is logged out ");
 }
 
-function logOut(){
-  console.log("does this work");
-
+socket.on("log out", (data) => {
+  deleteUser({ username: data.username });
+});
+function logOut() {
+  console.log("does this working");
+  //socket.disconnect();
+  socket.emit("log out", { username: username });
 }
 
 setInterval(() => {
@@ -115,13 +120,8 @@ setInterval(() => {
   });
 }, 2000);
 
-socket.on('log out', (data) => {
-  console.log("user: " + data.username + " is logged out");
-  socket.on('disconnect');
-});
-
 socket.on("register username", (data) => {
-    addUser({ username: data.username });
+  addUser({ username: data.username });
 });
 
 input.addEventListener("keypress", (e) => {
@@ -155,11 +155,10 @@ form.addEventListener("submit", function (e) {
   }
 });
 
-
 function addMessage(data) {
   var item = document.createElement("li");
   let date = new Date();
-  
+
   if (data.username == username) {
     item.innerHTML =
       "<div> " +
@@ -175,7 +174,6 @@ function addMessage(data) {
       "<div/>";
     item.classList.add("self-message");
     item.querySelector("div").style.backgroundColor = "#B7E5DD";
-  
   } else if (data.roomId == username && groupId == data.username) {
     item.innerHTML =
       "<div> " +
@@ -191,7 +189,6 @@ function addMessage(data) {
       "<div/>";
     item.classList.add("others-message");
     item.querySelector("div").style.backgroundColor = data.color;
-
   }
 
   messages.appendChild(item);
@@ -218,6 +215,3 @@ socket.on("chat message", function (data) {
     addMessage(data);
   }
 });
-
-
-

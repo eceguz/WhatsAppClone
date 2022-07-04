@@ -4,6 +4,7 @@ const http = require("http");
 const { IPv4 } = require("ipaddr.js");
 const server = http.createServer(app);
 const { Server } = require("socket.io");
+const { location } = require("url-parse");
 const io = new Server(server);
 const users = [];
 app.use("/static", express.static("./static/"));
@@ -13,8 +14,8 @@ app.get("/", (req, res) => {
 
 io.on('connection', (socket) => {
 
-  socket.on('disconnect', function() {
-    socket.disconnect();
+  socket.on('log out', function(uname) {
+    io.emit('log out', uname);
   });
 
   socket.on('chat message', function (msg) {
@@ -25,11 +26,7 @@ io.on('connection', (socket) => {
     io.emit('register username', username);
   });
 
-
-
 });
-
-
 
 server.listen(process.env.PORT || 5500, () => {
   console.log("listening on 5500");
