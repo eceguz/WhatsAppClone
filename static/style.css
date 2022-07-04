@@ -84,6 +84,20 @@ body {
     background: #ededed;
   }
 
+  #user_list li .notification{
+    visibility: hidden;
+    
+    background: #06d755;
+    border-radius: 50%;
+    width: 15px;
+    height: 15px;
+    text-align: center;
+    justify-content: center;
+    padding: 5px;
+    color: #fff;
+    align-items: center;
+  }
+
   .groupName {
     position: relative;
     display: flex;

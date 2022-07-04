@@ -84,7 +84,6 @@ function addUser(data) {
       });
       users.push(data.username);
       
-
       let userDiv = document.createElement("div");
       userDiv.className = "userImg";
 
@@ -96,9 +95,16 @@ function addUser(data) {
       var nameDiv = document.createElement("div");
       nameDiv.className = "groupName";
 
+      let notifDiv = document.createElement("div");
+      
+      notifDiv.innerHTML = "2";
+      notifDiv.setAttribute("userSentMsg", data.username);
+      notifDiv.classList.add("notification");
+
       userDiv.appendChild(icon);
       user.appendChild(userDiv);
       user.appendChild(nameDiv);
+      user.appendChild(notifDiv);
 
       nameDiv.innerHTML = data.username;
       user_list.appendChild(user);
@@ -188,24 +194,44 @@ function addMessage(data) {
       item.querySelector("div").style.backgroundColor = "#B7E5DD";
       messages.appendChild(item);
       messageList.push(data);
-    } else if (data.roomId == username && groupId == data.username) {
-      item.innerHTML =
-        "<div> " +
-        data.username +
-        ": " +
-        data.message +
-        "  " +
-        "<i> <small>  " +
-        date.getHours() +
-        ":" +
-        date.getMinutes() +
-        " <small/> <i/>" +
-        "<div/>";
-      item.classList.add("others-message");
-      item.querySelector("div").style.backgroundColor = data.color;
-      messages.appendChild(item);
-      messageList.push(data);
-    }
+    } else if (data.roomId == username){
+      
+      if(groupId == data.username) {
+        let ifUsersSentMsg = document.querySelector(
+          "[userSentMsg=" + data.username + "]"
+        );
+        if(ifUsersSentMsg){
+          ifUsersSentMsg.style.visibility="hidden";
+        }
+        item.innerHTML =
+          "<div> " +
+          data.username +
+          ": " +
+          data.message +
+          "  " +
+          "<i> <small>  " +
+          date.getHours() +
+          ":" +
+          date.getMinutes() +
+          " <small/> <i/>" +
+          "<div/>";
+        
+        item.classList.add("others-message");
+        item.querySelector("div").style.backgroundColor = data.color;
+        messages.appendChild(item);
+        messageList.push(data);
+
+      } else {
+        //notification is handled here
+        
+        let userSentMsg = document.querySelector(
+          "[userSentMsg=" + data.username + "]"
+        );
+        console.log(userSentMsg);
+        userSentMsg.style.visibility = "visible";
+      }
+
+    } 
   }
   
 
@@ -221,7 +247,7 @@ socket.on("chat message", function (data) {
       document.getElementById("typing").innerHTML = " ";
     } else if (data.typing) {
       if (groupId == data.username && data.roomId == username) {
-        console.log(data.roomId);
+        
         document.getElementById("typing").innerHTML =
           data.username + " is typing...";
       } else {
