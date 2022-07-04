@@ -1,5 +1,4 @@
 
-
 var socket = io();
 
 var messages = document.getElementById("messages");
@@ -30,8 +29,9 @@ const color_arr = [
 var groupId = 0;
 var color = color_arr[Math.floor(Math.random() * color_arr.length)];
 
-
-while(!username && users.includes(username)){
+loggedUsers.push(username);
+console.log(loggedUsers);
+while(!username || users.includes(username)){
   username = prompt("Please enter a valid and unique username");
 }
 document.getElementById("userName").innerHTML = username;
