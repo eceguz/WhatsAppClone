@@ -5,9 +5,12 @@ var form = document.getElementById("form");
 
 var input = document.getElementById("input");
 var username = prompt("Enter your username");
+
+
 let messageList = [];
 let users = [];
 let loggedUsers = [];
+let selectedUserBoolean = false;
 
 const color_arr = [
   "#FFE6E6",
@@ -25,6 +28,10 @@ const color_arr = [
 var groupId = 0;
 var color = color_arr[Math.floor(Math.random() * color_arr.length)];
 
+
+while(!username && users.includes(username)){
+  username = prompt("Please enter a valid and unique username");
+}
 document.getElementById("userName").innerHTML = username;
 var friendName = document.createElement("h4");
 
@@ -41,18 +48,21 @@ function filterMessages(messageFrom, messageTo) {
 }
 
 function setActiveChat(selectedUser) {
-  console.log(selectedUser);
-  groupId = selectedUser;
+  if(groupId != selectedUser){
 
-  friendName.innerHTML = groupId;
-  friendName.classList.add("header_style");
+    groupId = selectedUser;
 
-  chatpanel_right_header.appendChild(friendName);
-  console.log(messageList, groupId);
-
-  if (selectedUser) {
-    filterMessages(selectedUser, username);
+    friendName.innerHTML = groupId;
+    friendName.classList.add("header_style");
+  
+    chatpanel_right_header.appendChild(friendName);
+    
+  
+    if (selectedUser) {
+      filterMessages(selectedUser, username);
+    }
   }
+
 }
 
 function addUser(data) {
@@ -61,8 +71,8 @@ function addUser(data) {
       let user = document.createElement("li");
       user.classList.add("active");
       user.setAttribute("userName", data.username);
-
       user.addEventListener("click", () => {
+        selectedUserBoolean = true;
         let activeEl = document.querySelectorAll("li.active");
         activeEl.forEach((element) => {
           if (element) element.classList.remove("active");
@@ -70,8 +80,10 @@ function addUser(data) {
         });
 
         setActiveChat(data.username);
+        document.querySelector("form").style.display = "flex";
       });
       users.push(data.username);
+      
 
       let userDiv = document.createElement("div");
       userDiv.className = "userImg";
@@ -102,15 +114,13 @@ function deleteUser(data) {
     loggedOutUser.style.display = "none";
   }
 
-  console.log(data.username + " is logged out ");
 }
 
 socket.on("log out", (data) => {
   deleteUser({ username: data.username });
 });
+
 function logOut() {
-  console.log("does this working");
-  //socket.disconnect();
   socket.emit("log out", { username: username });
 }
 
@@ -128,6 +138,7 @@ input.addEventListener("keypress", (e) => {
   socket.emit("chat message", {
     username: username,
     typing: true,
+    roomId: groupId
   });
 });
 
@@ -136,6 +147,7 @@ input.addEventListener("keyup", (e) => {
     socket.emit("chat message", {
       username: username,
       typing: "stop",
+      roomId: groupId
     });
   }, 3000);
 });
@@ -158,60 +170,66 @@ form.addEventListener("submit", function (e) {
 function addMessage(data) {
   var item = document.createElement("li");
   let date = new Date();
-
-  if (data.username == username) {
-    item.innerHTML =
-      "<div> " +
-      data.username +
-      ": " +
-      data.message +
-      "  " +
-      "<i> <small>  " +
-      date.getHours() +
-      ":" +
-      date.getMinutes() +
-      " <small/> <i/>" +
-      "<div/>";
-    item.classList.add("self-message");
-    item.querySelector("div").style.backgroundColor = "#B7E5DD";
-  } else if (data.roomId == username && groupId == data.username) {
-    item.innerHTML =
-      "<div> " +
-      data.username +
-      ": " +
-      data.message +
-      "  " +
-      "<i> <small>  " +
-      date.getHours() +
-      ":" +
-      date.getMinutes() +
-      " <small/> <i/>" +
-      "<div/>";
-    item.classList.add("others-message");
-    item.querySelector("div").style.backgroundColor = data.color;
+  if(data.message){
+    if (data.username == username) {
+      item.innerHTML =
+        "<div> " +
+        data.username +
+        ": " +
+        data.message +
+        "  " +
+        "<i> <small>  " +
+        date.getHours() +
+        ":" +
+        date.getMinutes() +
+        " <small/> <i/>" +
+        "<div/>";
+      item.classList.add("self-message");
+      item.querySelector("div").style.backgroundColor = "#B7E5DD";
+      messages.appendChild(item);
+      messageList.push(data);
+    } else if (data.roomId == username && groupId == data.username) {
+      item.innerHTML =
+        "<div> " +
+        data.username +
+        ": " +
+        data.message +
+        "  " +
+        "<i> <small>  " +
+        date.getHours() +
+        ":" +
+        date.getMinutes() +
+        " <small/> <i/>" +
+        "<div/>";
+      item.classList.add("others-message");
+      item.querySelector("div").style.backgroundColor = data.color;
+      messages.appendChild(item);
+      messageList.push(data);
+    }
   }
+  
 
-  messages.appendChild(item);
-  messageList.push(data);
-  console.log(messageList);
   let panel = document.querySelector(".comments_wrapper");
   panel.scrollTop = panel.scrollHeight;
 }
 
 socket.on("chat message", function (data) {
-  messageList.push(data);
-  addUser(data);
-  if (data.typing == "stop") {
-    document.getElementById("typing").innerHTML = " ";
-  } else if (data.typing) {
-    if (data.username != username && groupId == data.username) {
-      document.getElementById("typing").innerHTML =
-        data.username + " is typing...";
+  
+    messageList.push(data);
+    addUser(data);
+    if (data.typing == "stop") {
+      document.getElementById("typing").innerHTML = " ";
+    } else if (data.typing) {
+      if (groupId == data.username && data.roomId == username) {
+        console.log(data.roomId);
+        document.getElementById("typing").innerHTML =
+          data.username + " is typing...";
+      } else {
+        document.getElementById("typing").innerHTML = " ";
+      }
     } else {
       document.getElementById("typing").innerHTML = " ";
+      addMessage(data);
     }
-  } else {
-    document.getElementById("typing").innerHTML = " ";
-    addMessage(data);
-  }
+
 });
