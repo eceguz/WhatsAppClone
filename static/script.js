@@ -1,3 +1,5 @@
+
+
 var socket = io();
 
 var messages = document.getElementById("messages");
@@ -96,9 +98,10 @@ function addUser(data) {
       nameDiv.className = "groupName";
 
       let notifDiv = document.createElement("div");
-      
-      notifDiv.innerHTML = "2";
+      let notifCount = 0;
+      notifDiv.innerHTML = notifCount;
       notifDiv.setAttribute("userSentMsg", data.username);
+      notifDiv.setAttribute("notifCount", 0);
       notifDiv.classList.add("notification");
 
       userDiv.appendChild(icon);
@@ -201,7 +204,9 @@ function addMessage(data) {
           "[userSentMsg=" + data.username + "]"
         );
         if(ifUsersSentMsg){
+          ifUsersSentMsg.setAttribute("notifCount", 0);
           ifUsersSentMsg.style.visibility="hidden";
+
         }
         item.innerHTML =
           "<div> " +
@@ -227,7 +232,10 @@ function addMessage(data) {
         let userSentMsg = document.querySelector(
           "[userSentMsg=" + data.username + "]"
         );
-        console.log(userSentMsg);
+        let notifCount = userSentMsg.getAttribute("notifCount");
+        notifCount++;
+        userSentMsg.innerHTML = notifCount;
+        userSentMsg.setAttribute("notifCount", notifCount);
         userSentMsg.style.visibility = "visible";
       }
 
