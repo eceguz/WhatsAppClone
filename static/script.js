@@ -63,8 +63,12 @@ function addUser(data) {
       user.classList.add("active");
       user.setAttribute("userName", data.username);
       user.addEventListener("click", () => {
-        let activeEl = document.querySelector("li.active");
-        if (activeEl) activeEl.classList.remove("active");
+        let activeEl = document.querySelectorAll("li.active");
+        activeEl.forEach(element => {
+          if(element) element.classList.remove("active");
+          user.classList.add("active");
+        })
+       // if (activeEl) activeEl.classList.remove("active");
 
         setActiveChat(data.username);
       });
@@ -102,17 +106,13 @@ function filterLoggedOutUsers(loggedUsers) {
 
 function logOut(){
   console.log("does this work");
-  socket.emit('log out', {username: username});
-  
+
 }
 
 setInterval(() => {
   socket.emit("register username", {
     username: username,
   });
-  // socket.emit('disconnect', {
-  //   username: username
-  // });
 }, 2000);
 
 socket.on('log out', (data) => {
@@ -121,17 +121,8 @@ socket.on('log out', (data) => {
 });
 
 socket.on("register username", (data) => {
-
     addUser({ username: data.username });
- 
 });
-
-// socket.on('disconnect', () => {
-//   socket.emit(console.log('you have been disconnected'));
-// });
-// socket.on('user left', (data) => {
-//   console.log(data.username + " is left");
-// });
 
 input.addEventListener("keypress", (e) => {
   socket.emit("chat message", {
@@ -164,10 +155,6 @@ form.addEventListener("submit", function (e) {
   }
 });
 
-// window.addEventListener('beforeunload', function (e) {
-//   e.preventDefault();
-//   alert("hıuh");
-// });
 
 function addMessage(data) {
   var item = document.createElement("li");
