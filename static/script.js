@@ -30,8 +30,7 @@ var groupId = 0;
 var color = color_arr[Math.floor(Math.random() * color_arr.length)];
 
 loggedUsers.push(username);
-console.log(loggedUsers);
-while(!username || users.includes(username)){
+while(!username || loggedUsers.includes(username)){
   username = prompt("Please enter a valid and unique username");
 }
 document.getElementById("userName").innerHTML = username;
