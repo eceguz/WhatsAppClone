@@ -11,7 +11,6 @@ var userInput = prompt("Please enter a valid and unique username");
 let messageList = [];
 let users = [];
 let loggedUsers = [];
-let allUsers;
 let selectedUserBoolean = false;
 let friendId = 0;
 let friendUsername = "";
@@ -34,7 +33,6 @@ const color_arr = [
   "#E6BA95",
 ];
 
-
 var color = color_arr[Math.floor(Math.random() * color_arr.length)];
 var userId = randomId();
 
@@ -42,7 +40,6 @@ while(!userInput ){
   userInput = prompt("Enter a VALID username!");
 }
 username = userInput;
-
 
 document.getElementById("userName").innerHTML = username;
 var friendName = document.createElement("h4");
@@ -88,8 +85,11 @@ function addUser(data) {
         selectedUserBoolean = true;
         let activeEl = document.querySelectorAll("li.active");
         activeEl.forEach((element) => {
-          if (element) element.classList.remove("active");
-          user.classList.add("active");
+          if (element) {
+            element.classList.remove("active");
+          }
+            user.classList.add("active");
+          
         });
         console.log("jıo");
         setActiveChat(data.username, data.userId);
@@ -135,11 +135,12 @@ function deleteUser(data) {
 }
 
 socket.on("log out", (data) => {
-  deleteUser({ username: data.username });
+  deleteUser({ username: data.username, userId: data.userId });
 });
 
 function logOut() {
-  socket.emit("log out", { username: username });
+  console.log("jrofırejıre");
+  socket.emit("log out", { username: username, userId: userId });
 }
 
 setInterval(() => {

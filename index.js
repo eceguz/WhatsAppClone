@@ -13,7 +13,6 @@ app.get("/", (req, res) => {
   res.sendFile(__dirname + "/index.html");
 });
 
-var globalUserList = [];
 io.on("connection", (socket) => {
 
   socket.on("log out", function (uname) {
