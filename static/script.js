@@ -3,15 +3,23 @@ var socket = io();
 
 var messages = document.getElementById("messages");
 var form = document.getElementById("form");
-
 var input = document.getElementById("input");
-var username = prompt("Enter your username");
 
+var username = "";
+var userInput = prompt("Please enter a valid and unique username");
 
 let messageList = [];
 let users = [];
 let loggedUsers = [];
+let allUsers;
 let selectedUserBoolean = false;
+let friendId = 0;
+let friendUsername = "";
+
+function randomId() {
+  const uint32 = window.crypto.getRandomValues(new Uint32Array(1))[0];
+  return uint32.toString(16);
+}
 
 const color_arr = [
   "#FFE6E6",
@@ -26,21 +34,24 @@ const color_arr = [
   "#E6BA95",
 ];
 
-var groupId = 0;
-var color = color_arr[Math.floor(Math.random() * color_arr.length)];
 
-loggedUsers.push(username);
-while(!username || loggedUsers.includes(username)){
-  username = prompt("Please enter a valid and unique username");
+var color = color_arr[Math.floor(Math.random() * color_arr.length)];
+var userId = randomId();
+
+while(!userInput ){
+  userInput = prompt("Enter a VALID username!");
 }
+username = userInput;
+
+
 document.getElementById("userName").innerHTML = username;
 var friendName = document.createElement("h4");
 
 function filterMessages(messageFrom, messageTo) {
   let messagesList = messageList.filter((message) => {
     return (
-      (message.username == messageTo && message.roomId == messageFrom) ||
-      (message.username == messageFrom && message.roomId == messageTo)
+      (message.userId == messageTo && message.friendId == messageFrom) || 
+      (message.userId == messageFrom && message.friendId == messageTo)
     );
   });
 
@@ -48,30 +59,31 @@ function filterMessages(messageFrom, messageTo) {
   messagesList.forEach((item) => addMessage(item));
 }
 
-function setActiveChat(selectedUser) {
-  if(groupId != selectedUser){
+function setActiveChat(selectedUsername, selectedUserId) {
+  if(friendId != selectedUserId){
 
-    groupId = selectedUser;
+    friendId = selectedUserId;
+    friendUsername = selectedUsername;
 
-    friendName.innerHTML = groupId;
+    friendName.innerHTML = friendUsername;
     friendName.classList.add("header_style");
   
     chatpanel_right_header.appendChild(friendName);
     
-  
-    if (selectedUser) {
-      filterMessages(selectedUser, username);
+    if (selectedUsername) {
+      filterMessages(selectedUserId, userId);
     }
   }
-
 }
-
+console.log("username: " + username + "  user id : " + userId);
 function addUser(data) {
-  if (data.username != username) {
-    if (users.includes(data.username) == false) {
+  if (data.userId != userId) {
+    
+    if (users.includes(data.userId) == false) {
       let user = document.createElement("li");
       user.classList.add("active");
       user.setAttribute("userName", data.username);
+
       user.addEventListener("click", () => {
         selectedUserBoolean = true;
         let activeEl = document.querySelectorAll("li.active");
@@ -79,12 +91,12 @@ function addUser(data) {
           if (element) element.classList.remove("active");
           user.classList.add("active");
         });
-
-        setActiveChat(data.username);
+        console.log("jıo");
+        setActiveChat(data.username, data.userId);
         document.querySelector("form").style.display = "flex";
       });
-      users.push(data.username);
-      
+      users.push(data.userId);
+  
       let userDiv = document.createElement("div");
       userDiv.className = "userImg";
 
@@ -107,7 +119,6 @@ function addUser(data) {
       user.appendChild(userDiv);
       user.appendChild(nameDiv);
       user.appendChild(notifDiv);
-
       nameDiv.innerHTML = data.username;
       user_list.appendChild(user);
     }
@@ -121,7 +132,6 @@ function deleteUser(data) {
     );
     loggedOutUser.style.display = "none";
   }
-
 }
 
 socket.on("log out", (data) => {
@@ -135,18 +145,22 @@ function logOut() {
 setInterval(() => {
   socket.emit("register username", {
     username: username,
+    userId: userId
   });
-}, 2000);
+}, 1000);
 
 socket.on("register username", (data) => {
-  addUser({ username: data.username });
+  addUser({ username: data.username, userId : data.userId });
 });
+
 
 input.addEventListener("keypress", (e) => {
   socket.emit("chat message", {
     username: username,
+    userId: userId,
     typing: true,
-    roomId: groupId
+    friendUsername: friendUsername,
+    friendId: friendId
   });
 });
 
@@ -154,8 +168,10 @@ input.addEventListener("keyup", (e) => {
   setTimeout(() => {
     socket.emit("chat message", {
       username: username,
+      userId: userId,
       typing: "stop",
-      roomId: groupId
+      friendUsername: friendUsername,
+      friendId: friendId
     });
   }, 3000);
 });
@@ -165,12 +181,13 @@ form.addEventListener("submit", function (e) {
   if (input.value) {
     socket.emit("chat message", {
       username: username,
+      userId: userId,
       message: input.value,
       color: color,
       typing: false,
-      roomId: groupId,
+      friendUsername: friendUsername,
+      friendId: friendId
     });
-
     input.value = " ";
   }
 });
@@ -179,7 +196,7 @@ function addMessage(data) {
   var item = document.createElement("li");
   let date = new Date();
   if(data.message){
-    if (data.username == username) {
+    if (data.userId == userId) {
       item.innerHTML =
         "<div> " +
         data.username +
@@ -196,16 +213,15 @@ function addMessage(data) {
       item.querySelector("div").style.backgroundColor = "#B7E5DD";
       messages.appendChild(item);
       messageList.push(data);
-    } else if (data.roomId == username){
+    } else if (data.friendId == userId){
       
-      if(groupId == data.username) {
+      if(friendId == data.userId) {
         let ifUsersSentMsg = document.querySelector(
           "[userSentMsg=" + data.username + "]"
         );
         if(ifUsersSentMsg){
           ifUsersSentMsg.setAttribute("notifCount", 0);
           ifUsersSentMsg.style.visibility="hidden";
-
         }
         item.innerHTML =
           "<div> " +
@@ -237,10 +253,8 @@ function addMessage(data) {
         userSentMsg.setAttribute("notifCount", notifCount);
         userSentMsg.style.visibility = "visible";
       }
-
     } 
   }
-  
 
   let panel = document.querySelector(".comments_wrapper");
   panel.scrollTop = panel.scrollHeight;
@@ -253,7 +267,7 @@ socket.on("chat message", function (data) {
     if (data.typing == "stop") {
       document.getElementById("typing").innerHTML = " ";
     } else if (data.typing) {
-      if (groupId == data.username && data.roomId == username) {
+      if (friendId == data.userId && data.friendId == userId) {
         
         document.getElementById("typing").innerHTML =
           data.username + " is typing...";
@@ -264,5 +278,4 @@ socket.on("chat message", function (data) {
       document.getElementById("typing").innerHTML = " ";
       addMessage(data);
     }
-
 });
