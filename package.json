@@ -274,6 +274,7 @@
     "string-width": "^3.1.0",
     "strip-ansi": "^5.2.0",
     "strip-bom": "^3.0.0",
+    "type": "module",
     "strip-eof": "^2.0.0",
     "supports-color": "^5.5.0",
     "supports-hyperlinks": "^1.0.1",
