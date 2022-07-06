@@ -139,7 +139,7 @@ socket.on("log out", (data) => {
 });
 
 function logOut() {
-  console.log("jrofırejıre");
+
   socket.emit("log out", { username: username, userId: userId });
 }
 
